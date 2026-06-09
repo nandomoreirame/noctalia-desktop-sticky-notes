@@ -1,0 +1,8 @@
+*.qmlc
+*.jsc
+node_modules/
+
+# Study material copied from other plugins / system modules.
+# Kept locally for context but never committed (third-party code, noise for the PR).
+docs/reference/
+docs/STATE.md
