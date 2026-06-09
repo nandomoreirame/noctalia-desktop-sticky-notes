@@ -1,0 +1,22 @@
+{
+  "widget": {
+    "empty-hint": "Click to edit"
+  },
+  "editor": {
+    "edit": "Edit",
+    "save-preview": "Save & preview",
+    "save-close": "Save & close",
+    "placeholder": "Write in Markdown...",
+    "font-size": "{value} px"
+  },
+  "settings": {
+    "background-label": "Background color",
+    "background-description": "Pick a post-it color for the note.",
+    "text-color-label": "Text color",
+    "text-color-description": "Color of the note text.",
+    "font-size-label": "Font size",
+    "font-size-description": "Text size, independent of the widget scale.",
+    "show-background-label": "Show widget background",
+    "show-background-description": "Draw the shell's widget background behind the note."
+  }
+}
