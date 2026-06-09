@@ -1,52 +1,297 @@
 import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import qs.Commons
 import qs.Services.UI
 import qs.Widgets
+import "utils/markdown.js" as Markdown
+import "utils/palette.js" as Palette
 
-// Spike editor (Task 4): a minimal focused popup that writes a single field back
-// to the active note via updateWidgetData. Loaded by PluginPanelSlot inside a
-// SmartPanel (a real shell window), which is why it gets keyboard focus (AD-003).
-// Replaced by the full editor in Task 7.
+// The note editor. Loaded by PluginPanelSlot inside a SmartPanel (a real shell
+// window), which is why it gets keyboard focus (AD-003). It reads the active note
+// from the Main.qml store and writes back by index via updateWidgetData (AD-002).
 Item {
   id: root
   property var pluginApi: null
   readonly property var store: pluginApi?.mainInstance
 
   // SmartPanel sizes the panel from these, not implicitWidth/implicitHeight.
-  property int contentPreferredWidth: 420
-  property int contentPreferredHeight: 240
+  property int contentPreferredWidth: Math.round(560 * Style.uiScaleRatio)
+  property int contentPreferredHeight: Math.round(520 * Style.uiScaleRatio)
   implicitWidth: contentPreferredWidth
   implicitHeight: contentPreferredHeight
 
-  Rectangle {
+  // Tint the whole panel with the active note's color (read by PluginPanelSlot).
+  property color panelBackgroundColor: root.noteColor
+
+  readonly property string noteColor: store?.activeBgColor ?? "#FFF9C4"
+  readonly property string noteTextColor: store?.activeTextColor ?? "#37474F"
+  property bool editing: true
+
+  function persist(props) {
+    if (!store || store.activeWidgetIndex < 0)
+      return;
+    DesktopWidgetRegistry.updateWidgetData(store.activeScreenName, store.activeWidgetIndex, props);
+  }
+
+  function saveText() {
+    persist({
+      "text": editor.text
+    });
+  }
+
+  function closeEditor() {
+    saveText();
+    if (root.pluginApi)
+      root.pluginApi.closePanel(root.pluginApi.panelOpenScreen);
+  }
+
+  // Update the store (so the preview/panel retint live) AND persist the change.
+  function setBg(hex) {
+    if (store)
+      store.activeBgColor = hex;
+    persist({
+      "bgColor": hex
+    });
+  }
+
+  function setTextColor(hex) {
+    if (store)
+      store.activeTextColor = hex;
+    persist({
+      "textColor": hex
+    });
+  }
+
+  function setFontSize(n) {
+    if (store)
+      store.activeFontSize = n;
+    persist({
+      "fontSize": n
+    });
+  }
+
+  function colorToHex(c) {
+    function h(x) {
+      var s = Math.round(x * 255).toString(16);
+      return s.length === 1 ? "0" + s : s;
+    }
+    return "#" + h(c.r) + h(c.g) + h(c.b);
+  }
+
+  // Load the active note's text and grab focus when the panel opens.
+  Component.onCompleted: {
+    if (root.store)
+      editor.text = root.store.activeText;
+    root.editing = true;
+    focusTimer.restart();
+  }
+
+  Connections {
+    target: root.store
+    function onActiveChanged() {
+      editor.text = root.store.activeText;
+      root.editing = true;
+      focusTimer.restart();
+    }
+  }
+
+  // SmartPanel animates open, so defer focus a beat to ensure the window is mapped.
+  Timer {
+    id: focusTimer
+    interval: 120
+    onTriggered: if (root.editing)
+      editor.forceActiveFocus()
+  }
+
+  ColumnLayout {
     anchors.fill: parent
-    color: Color.mSurface
-    radius: Style.radiusL
+    anchors.margins: Style.marginM
+    spacing: Style.marginS
 
-    Column {
-      anchors.centerIn: parent
-      spacing: Style.marginM
+    // Toolbar: edit/preview toggle + close.
+    RowLayout {
+      Layout.fillWidth: true
+      spacing: Style.marginS
 
-      NTextInput {
-        id: input
-        width: 320
-        text: ""
+      Item {
+        Layout.fillWidth: true
       }
 
-      NButton {
-        text: "Save"
+      NIconButton {
+        icon: root.editing ? "check" : "pencil"
+        tooltipText: root.editing ? (root.pluginApi?.tr("editor.save-preview") ?? "Save & preview") : (root.pluginApi?.tr("editor.edit") ?? "Edit")
         onClicked: {
-          var s = root.store;
-          if (s && s.activeWidgetIndex >= 0) {
-            DesktopWidgetRegistry.updateWidgetData(s.activeScreenName, s.activeWidgetIndex, {
-              "text": input.text
-            });
-          }
-          // closePanel needs the ShellScreen the panel is open on, not null.
-          if (root.pluginApi) {
-            root.pluginApi.closePanel(root.pluginApi.panelOpenScreen);
+          if (root.editing) {
+            root.saveText();
+            root.editing = false;
+          } else {
+            root.editing = true;
+            editor.forceActiveFocus();
+            editor.cursorPosition = editor.text.length;
           }
         }
+      }
+
+      NIconButton {
+        icon: "close"
+        tooltipText: root.pluginApi?.tr("editor.save-close") ?? "Save & close"
+        onClicked: root.closeEditor()
+      }
+    }
+
+    // Editor / preview area.
+    Rectangle {
+      Layout.fillWidth: true
+      Layout.fillHeight: true
+      radius: Style.radiusM
+      color: Qt.rgba(1, 1, 1, 0.28)
+      border.width: root.editing ? Style.borderM : Style.borderS
+      border.color: root.editing ? (editor.activeFocus ? Qt.darker(Color.mPrimary, 1.35) : Color.mPrimary) : Qt.rgba(0, 0, 0, 0.08)
+
+      Behavior on border.color {
+        ColorAnimation {
+          duration: 150
+        }
+      }
+
+      Item {
+        anchors.fill: parent
+        anchors.margins: Style.marginS
+
+        // Preview (read-only RichText).
+        NScrollView {
+          anchors.fill: parent
+          visible: !root.editing
+          ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
+          TextArea {
+            text: Markdown.render(editor.text, {
+              "noteColor": root.noteColor
+            })
+            textFormat: TextEdit.RichText
+            color: root.noteTextColor
+            font.pointSize: Style.fontSizeM * Style.uiScaleRatio
+            wrapMode: TextArea.Wrap
+            readOnly: true
+            selectByMouse: true
+            background: Item {}
+            onLinkActivated: link => Qt.openUrlExternally(link)
+          }
+        }
+
+        // Editor.
+        NScrollView {
+          anchors.fill: parent
+          visible: root.editing
+          ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
+          TextArea {
+            id: editor
+            color: "#3E2723"
+            font.pointSize: Style.fontSizeM * Style.uiScaleRatio
+            wrapMode: TextArea.Wrap
+            selectByMouse: true
+            selectByKeyboard: true
+            persistentSelection: true
+            placeholderText: root.pluginApi?.tr("editor.placeholder") ?? "Write in Markdown..."
+            background: Item {}
+
+            Shortcut {
+              sequences: [StandardKey.Copy]
+              enabled: editor.activeFocus
+              onActivated: editor.copy()
+            }
+            Shortcut {
+              sequences: [StandardKey.Cut]
+              enabled: editor.activeFocus
+              onActivated: editor.cut()
+            }
+            Shortcut {
+              sequences: [StandardKey.Paste]
+              enabled: editor.activeFocus
+              onActivated: editor.paste()
+            }
+            Shortcut {
+              sequences: [StandardKey.SelectAll]
+              enabled: editor.activeFocus
+              onActivated: editor.selectAll()
+            }
+            Shortcut {
+              sequences: [StandardKey.Undo]
+              enabled: editor.activeFocus
+              onActivated: editor.undo()
+            }
+            Shortcut {
+              sequences: [StandardKey.Redo]
+              enabled: editor.activeFocus
+              onActivated: editor.redo()
+            }
+
+            Keys.onPressed: event => {
+              if (event.key === Qt.Key_S && (event.modifiers & Qt.ControlModifier)) {
+                root.saveText();
+                event.accepted = true;
+              } else if (event.key === Qt.Key_Escape) {
+                root.closeEditor();
+                event.accepted = true;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Customization: background swatches + text color + font size.
+    RowLayout {
+      Layout.fillWidth: true
+      spacing: Style.marginS
+
+      Repeater {
+        model: Palette.PALETTE
+
+        delegate: Rectangle {
+          required property string modelData
+          width: Math.round(24 * Style.uiScaleRatio)
+          height: width
+          radius: width / 2
+          color: modelData
+          border.width: root.noteColor === modelData ? 2 : 1
+          border.color: root.noteColor === modelData ? Color.mPrimary : Qt.rgba(0, 0, 0, 0.2)
+
+          MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: root.setBg(parent.modelData)
+          }
+        }
+      }
+
+      Item {
+        Layout.fillWidth: true
+      }
+
+      NColorPicker {
+        selectedColor: root.noteTextColor
+        onColorSelected: c => root.setTextColor(root.colorToHex(c))
+      }
+    }
+
+    NValueSlider {
+      Layout.fillWidth: true
+      property real _value: root.store?.activeFontSize ?? 14
+
+      from: 10
+      to: 28
+      stepSize: 1
+      value: _value
+      text: root.pluginApi?.tr("editor.font-size", {
+        "value": Math.round(_value)
+      }) ?? `${Math.round(_value)} px`
+      onMoved: v => _value = v
+      onPressedChanged: (pressed, v) => {
+        if (!pressed)
+          root.setFontSize(Math.round(v));
       }
     }
   }
