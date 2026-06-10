@@ -1,7 +1,7 @@
 {
   "id": "desktop-sticky-notes",
   "name": "Desktop Sticky Notes",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "minNoctaliaVersion": "4.6.6",
   "author": "Fernando Moreira",
   "license": "MIT",
