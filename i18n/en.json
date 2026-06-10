@@ -6,6 +6,7 @@
     "edit": "Edit",
     "save-preview": "Save & preview",
     "save-close": "Save & close",
+    "invert": "Invert colors",
     "placeholder": "Write in Markdown...",
     "font-size": "{value} px",
     "font-size-label": "Font size",

@@ -7,6 +7,7 @@ import qs.Widgets
 import "utils/markdown.js" as Markdown
 import "utils/palette.js" as Palette
 import "utils/dimensions.js" as Dimensions
+import "utils/theme.js" as Theme
 
 // The note editor. Loaded by PluginPanelSlot inside a SmartPanel (a real shell
 // window), which is why it gets keyboard focus (AD-003). It reads the active note
@@ -33,6 +34,9 @@ Item {
 
   readonly property string noteColor: store?.activeBgColor ?? "#FFF9C4"
   readonly property string noteTextColor: store?.activeTextColor ?? "#37474F"
+  // Dark mode is derived from the background's luminance (the invert toggle is
+  // stateless): when the note background is dark, show the dark swatch palette.
+  readonly property bool darkMode: Palette.isDark(root.noteColor)
   property bool editing: true
 
   function persist(props) {
@@ -102,6 +106,19 @@ Item {
     return "#" + h(c.r) + h(c.g) + h(c.b);
   }
 
+  // Dark/light toggle: swap background and foreground (reversible).
+  function invertColors() {
+    var swapped = Theme.invert(root.noteColor, root.noteTextColor);
+    if (store) {
+      store.activeBgColor = swapped.bgColor;
+      store.activeTextColor = swapped.textColor;
+    }
+    persist({
+      "bgColor": swapped.bgColor,
+      "textColor": swapped.textColor
+    });
+  }
+
   // Load the active note's text and grab focus when the panel opens.
   Component.onCompleted: {
     if (root.store)
@@ -139,6 +156,12 @@ Item {
 
       Item {
         Layout.fillWidth: true
+      }
+
+      NIconButton {
+        icon: root.darkMode ? "moon" : "sun"
+        tooltipText: root.pluginApi?.tr("editor.invert") ?? "Invert colors"
+        onClicked: root.invertColors()
       }
 
       NIconButton {
@@ -191,9 +214,7 @@ Item {
           ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
           TextArea {
-            text: Markdown.render(editor.text, {
-              "noteColor": root.noteColor
-            })
+            text: Markdown.render(editor.text, Palette.markdownTheme(root.noteColor, root.noteTextColor))
             textFormat: TextEdit.RichText
             color: root.noteTextColor
             font.pointSize: Style.fontSizeM * Style.uiScaleRatio
@@ -213,7 +234,9 @@ Item {
 
           TextArea {
             id: editor
-            color: "#3E2723"
+            // Follow the note's text color so it inverts with dark mode (was a
+            // hardcoded dark brown -> invisible on a dark/inverted background).
+            color: root.noteTextColor
             font.pointSize: Style.fontSizeM * Style.uiScaleRatio
             wrapMode: TextArea.Wrap
             selectByMouse: true
@@ -273,7 +296,7 @@ Item {
       spacing: Style.marginS
 
       Repeater {
-        model: Palette.PALETTE
+        model: root.darkMode ? Palette.DARK_PALETTE : Palette.PALETTE
 
         delegate: Rectangle {
           required property string modelData

@@ -7,6 +7,7 @@ import qs.Widgets
 import "utils/markdown.js" as Markdown
 import "utils/scroll.js" as Scroll
 import "utils/dimensions.js" as Dimensions
+import "utils/palette.js" as Palette
 
 // One sticky note on the desktop. Per-instance state lives in widgetData
 // (text, bgColor, textColor, fontSize). Persistence goes through the base class
@@ -28,6 +29,11 @@ DraggableDesktopWidget {
   readonly property color noteBg: widgetData?.bgColor ?? _defaults.defaultBgColor ?? "#FFF9C4"
   readonly property color noteTextColor: widgetData?.textColor ?? _defaults.defaultTextColor ?? "#37474F"
   readonly property int noteFontSize: widgetData?.fontSize ?? _defaults.defaultFontSize ?? 14
+
+  // Hex STRINGS (not color objects) for markdown.js theming: the parser reads
+  // them as strings to derive the quote background and adapt to dark/light.
+  readonly property string noteBgHex: widgetData?.bgColor ?? _defaults.defaultBgColor ?? "#FFF9C4"
+  readonly property string noteFgHex: widgetData?.textColor ?? _defaults.defaultTextColor ?? "#37474F"
 
   // Independent base width/height per note (REQ-009 spirit). The base class still
   // multiplies by widgetScale (uniform corner-scale), so the corner handle zooms
@@ -84,9 +90,7 @@ DraggableDesktopWidget {
       Text {
         id: notePreview
         width: noteFlick.width
-        text: Markdown.render(root.noteText, {
-          "noteColor": root.noteBg
-        })
+        text: Markdown.render(root.noteText, Palette.markdownTheme(root.noteBgHex, root.noteFgHex))
         textFormat: Text.RichText
         color: root.noteTextColor
         // Constant font size, independent of widgetScale (REQ-009). The note box
