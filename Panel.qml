@@ -24,6 +24,12 @@ Item {
   // Tint the whole panel with the active note's color (read by PluginPanelSlot).
   property color panelBackgroundColor: root.noteColor
 
+  // Open the editor centered on screen as a free-floating dialog, not docked to
+  // the bar or anchored near the note (read by PluginPanelSlot -> SmartPanel).
+  property bool panelAnchorHorizontalCenter: true
+  property bool panelAnchorVerticalCenter: true
+  property bool allowAttach: false
+
   readonly property string noteColor: store?.activeBgColor ?? "#FFF9C4"
   readonly property string noteTextColor: store?.activeTextColor ?? "#37474F"
   property bool editing: true
