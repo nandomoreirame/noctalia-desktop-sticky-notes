@@ -19,7 +19,7 @@ Item {
 
   // SmartPanel sizes the panel from these, not implicitWidth/implicitHeight.
   property int contentPreferredWidth: Math.round(560 * Style.uiScaleRatio)
-  property int contentPreferredHeight: Math.round(640 * Style.uiScaleRatio)
+  property int contentPreferredHeight: Math.round(700 * Style.uiScaleRatio)
   implicitWidth: contentPreferredWidth
   implicitHeight: contentPreferredHeight
 
@@ -95,6 +95,14 @@ Item {
       store.activeHeight = n;
     persist({
       "noteHeight": n
+    });
+  }
+
+  function setPadding(n) {
+    if (store)
+      store.activePadding = n;
+    persist({
+      "padding": n
     });
   }
 
@@ -375,6 +383,23 @@ Item {
       onPressedChanged: (pressed, v) => {
         if (!pressed)
           root.setHeight(Math.round(v));
+      }
+    }
+
+    NValueSlider {
+      Layout.fillWidth: true
+      property real _value: root.store?.activePadding ?? 12
+
+      from: Dimensions.PADDING_MIN
+      to: Dimensions.PADDING_MAX
+      stepSize: 2
+      value: _value
+      label: root.pluginApi?.tr("editor.padding-label") ?? "Padding"
+      text: `${Math.round(_value)} px`
+      onMoved: v => _value = v
+      onPressedChanged: (pressed, v) => {
+        if (!pressed)
+          root.setPadding(Math.round(v));
       }
     }
   }

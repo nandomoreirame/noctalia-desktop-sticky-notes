@@ -19,6 +19,7 @@ Item {
   property int activeFontSize: 14
   property int activeWidth: 200
   property int activeHeight: 140
+  property int activePadding: 12
 
   // Emitted on every setActive so an already-open Panel can reload.
   signal activeChanged
@@ -34,6 +35,7 @@ Item {
     activeFontSize = (d.fontSize !== undefined && d.fontSize !== null) ? d.fontSize : 14;
     activeWidth = (d.noteWidth !== undefined && d.noteWidth !== null) ? d.noteWidth : 200;
     activeHeight = (d.noteHeight !== undefined && d.noteHeight !== null) ? d.noteHeight : 140;
+    activePadding = (d.padding !== undefined && d.padding !== null) ? d.padding : 12;
 
     activeChanged();
   }

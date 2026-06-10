@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { clampDimension, WIDTH_MIN, WIDTH_MAX, HEIGHT_MIN, HEIGHT_MAX } from "../utils/dimensions.js";
+import { clampDimension, WIDTH_MIN, WIDTH_MAX, HEIGHT_MIN, HEIGHT_MAX, PADDING_MIN, PADDING_MAX } from "../utils/dimensions.js";
 
 describe("clampDimension", () => {
   it("clamps below the minimum", () => {
@@ -22,5 +22,10 @@ describe("dimension ranges", () => {
 
   it("exposes a sane height range", () => {
     expect(HEIGHT_MIN).toBeLessThan(HEIGHT_MAX);
+  });
+
+  it("exposes a sane padding range starting at zero", () => {
+    expect(PADDING_MIN).toBe(0);
+    expect(PADDING_MIN).toBeLessThan(PADDING_MAX);
   });
 });

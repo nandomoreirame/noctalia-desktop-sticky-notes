@@ -9,6 +9,10 @@ var WIDTH_MAX = 600;
 var HEIGHT_MIN = 80;
 var HEIGHT_MAX = 600;
 
+// Inner padding (px, before widgetScale) between the note edge and its content.
+var PADDING_MIN = 0;
+var PADDING_MAX = 40;
+
 // Defensive clamp for a persisted dimension value (guards corrupt/out-of-range data).
 function clampDimension(value, min, max) {
   if (value < min)

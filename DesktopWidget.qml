@@ -29,6 +29,7 @@ DraggableDesktopWidget {
   readonly property color noteBg: widgetData?.bgColor ?? _defaults.defaultBgColor ?? "#FFF9C4"
   readonly property color noteTextColor: widgetData?.textColor ?? _defaults.defaultTextColor ?? "#37474F"
   readonly property int noteFontSize: widgetData?.fontSize ?? _defaults.defaultFontSize ?? 14
+  readonly property int notePadding: Dimensions.clampDimension(widgetData?.padding ?? _defaults.defaultPadding ?? 12, Dimensions.PADDING_MIN, Dimensions.PADDING_MAX)
 
   // Hex STRINGS (not color objects) for markdown.js theming: the parser reads
   // them as strings to derive the quote background and adapt to dark/light.
@@ -72,7 +73,7 @@ DraggableDesktopWidget {
     Flickable {
       id: noteFlick
       anchors.fill: parent
-      anchors.margins: Math.round(Style.marginM * root.widgetScale)
+      anchors.margins: Math.round(root.notePadding * root.widgetScale)
       visible: root.noteText !== ""
       interactive: false
       clip: true
@@ -117,7 +118,8 @@ DraggableDesktopWidget {
           "textColor": root.widgetData?.textColor ?? "#37474F",
           "fontSize": root.widgetData?.fontSize ?? 14,
           "noteWidth": root.noteWidth,
-          "noteHeight": root.noteHeight
+          "noteHeight": root.noteHeight,
+          "padding": root.notePadding
         });
       }
       root.pluginApi?.openPanel(root.screen);

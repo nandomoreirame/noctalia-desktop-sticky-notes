@@ -11,7 +11,8 @@
     "font-size": "{value} px",
     "font-size-label": "Font size",
     "width-label": "Width",
-    "height-label": "Height"
+    "height-label": "Height",
+    "padding-label": "Padding"
   },
   "settings": {
     "background-label": "Background color",
