@@ -15,8 +15,6 @@
     "text-color-label": "Text color",
     "text-color-description": "Color of the note text.",
     "font-size-label": "Font size",
-    "font-size-description": "Text size, independent of the widget scale.",
-    "show-background-label": "Show widget background",
-    "show-background-description": "Draw the shell's widget background behind the note."
+    "font-size-description": "Text size, independent of the widget scale."
   }
 }

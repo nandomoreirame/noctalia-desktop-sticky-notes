@@ -17,7 +17,6 @@
   "dependencies": { "plugins": [] },
   "metadata": {
     "defaultSettings": {
-      "showBackground": false,
       "defaultBgColor": "#FFF9C4",
       "defaultTextColor": "#37474F",
       "defaultFontSize": 14

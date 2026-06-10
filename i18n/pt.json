@@ -15,8 +15,6 @@
     "text-color-label": "Cor do texto",
     "text-color-description": "Cor do texto da nota.",
     "font-size-label": "Tamanho da fonte",
-    "font-size-description": "Tamanho do texto, independente da escala do widget.",
-    "show-background-label": "Mostrar fundo do widget",
-    "show-background-description": "Desenha o fundo de widget do shell atrás da nota."
+    "font-size-description": "Tamanho do texto, independente da escala do widget."
   }
 }

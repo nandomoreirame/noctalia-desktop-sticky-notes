@@ -12,9 +12,10 @@ DraggableDesktopWidget {
   id: root
   property var pluginApi: null
 
-  // The note paints its own post-it background, so the base chrome is off by
-  // default (C-001). The widget settings can still opt it back in per instance.
-  showBackground: widgetData?.showBackground ?? false
+  // The note paints its own square post-it background, so the base chrome
+  // (background + rounded corners) is always off (C-001).
+  showBackground: false
+  roundedCorners: false
 
   // Defaults are single-sourced from the manifest (metadata.defaultSettings),
   // with hardcoded fallbacks so a missing field never breaks the render (REQ-008).
@@ -34,7 +35,8 @@ DraggableDesktopWidget {
 
   Rectangle {
     anchors.fill: parent
-    radius: Math.round(Style.radiusM * root.widgetScale)
+    // Square corners: real post-its are not rounded.
+    radius: 0
     color: root.noteBg
     border.width: 1
     border.color: Qt.darker(root.noteBg, 1.08)
@@ -46,7 +48,9 @@ DraggableDesktopWidget {
       visible: root.noteText === ""
       text: root.pluginApi?.tr("widget.empty-hint") ?? "Click to edit"
       color: Qt.rgba(root.noteTextColor.r, root.noteTextColor.g, root.noteTextColor.b, 0.5)
-      pointSize: Math.round(Style.fontSizeM * root.widgetScale)
+      // Font does NOT scale with widgetScale (REQ-009): scaling the box reveals
+      // more/less text at a constant readable size, it does not magnify text.
+      pointSize: Style.fontSizeM
     }
 
     // Read-only Markdown preview. Text (not TextArea) so it never captures the
@@ -61,7 +65,9 @@ DraggableDesktopWidget {
       })
       textFormat: Text.RichText
       color: root.noteTextColor
-      font.pointSize: Math.round(root.noteFontSize * root.widgetScale)
+      // Constant font size, independent of widgetScale (REQ-009). The note box
+      // grows with widgetScale (more room for text), the text stays readable.
+      font.pointSize: root.noteFontSize
       wrapMode: Text.Wrap
       verticalAlignment: Text.AlignTop
     }

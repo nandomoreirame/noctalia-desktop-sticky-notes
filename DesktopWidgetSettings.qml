@@ -17,7 +17,6 @@ ColumnLayout {
   property string bgColor: widgetSettings?.data?.bgColor ?? widgetSettings?.metadata?.defaultBgColor ?? "#FFF9C4"
   property string textColor: widgetSettings?.data?.textColor ?? widgetSettings?.metadata?.defaultTextColor ?? "#37474F"
   property int fontSize: widgetSettings?.data?.fontSize ?? widgetSettings?.metadata?.defaultFontSize ?? 14
-  property bool showBackground: widgetSettings?.data?.showBackground ?? widgetSettings?.metadata?.showBackground ?? false
 
   function colorToHex(c) {
     function h(x) {
@@ -33,7 +32,6 @@ ColumnLayout {
     widgetSettings.data.bgColor = bgColor;
     widgetSettings.data.textColor = textColor;
     widgetSettings.data.fontSize = fontSize;
-    widgetSettings.data.showBackground = showBackground;
     widgetSettings.save();
   }
 
@@ -116,15 +114,4 @@ ColumnLayout {
     }
   }
 
-  // Optional base background (note draws its own post-it look by default).
-  NToggle {
-    label: root.pluginApi?.tr("settings.show-background-label") ?? "Show widget background"
-    description: root.pluginApi?.tr("settings.show-background-description") ?? "Draw the shell's widget background behind the note."
-    checked: root.showBackground
-    defaultValue: false
-    onToggled: checked => {
-      root.showBackground = checked;
-      root.saveSettings();
-    }
-  }
 }
