@@ -6,6 +6,7 @@ import qs.Services.UI
 import qs.Widgets
 import "utils/markdown.js" as Markdown
 import "utils/palette.js" as Palette
+import "utils/dimensions.js" as Dimensions
 
 // The note editor. Loaded by PluginPanelSlot inside a SmartPanel (a real shell
 // window), which is why it gets keyboard focus (AD-003). It reads the active note
@@ -17,12 +18,12 @@ Item {
 
   // SmartPanel sizes the panel from these, not implicitWidth/implicitHeight.
   property int contentPreferredWidth: Math.round(560 * Style.uiScaleRatio)
-  property int contentPreferredHeight: Math.round(520 * Style.uiScaleRatio)
+  property int contentPreferredHeight: Math.round(640 * Style.uiScaleRatio)
   implicitWidth: contentPreferredWidth
   implicitHeight: contentPreferredHeight
 
-  // Tint the whole panel with the active note's color (read by PluginPanelSlot).
-  property color panelBackgroundColor: root.noteColor
+  // The panel keeps the default (dark) surface so the themed sliders, labels and
+  // pickers stay legible; the note color lives on the editing surface instead.
 
   // Open the editor centered on screen as a free-floating dialog, not docked to
   // the bar or anchored near the note (read by PluginPanelSlot -> SmartPanel).
@@ -74,6 +75,22 @@ Item {
       store.activeFontSize = n;
     persist({
       "fontSize": n
+    });
+  }
+
+  function setWidth(n) {
+    if (store)
+      store.activeWidth = n;
+    persist({
+      "noteWidth": n
+    });
+  }
+
+  function setHeight(n) {
+    if (store)
+      store.activeHeight = n;
+    persist({
+      "noteHeight": n
     });
   }
 
@@ -151,7 +168,9 @@ Item {
       Layout.fillWidth: true
       Layout.fillHeight: true
       radius: Style.radiusM
-      color: Qt.rgba(1, 1, 1, 0.28)
+      // The editing/preview surface carries the note color (WYSIWYG, readable
+      // dark text); the surrounding panel chrome stays on the default dark surface.
+      color: root.noteColor
       border.width: root.editing ? Style.borderM : Style.borderS
       border.color: root.editing ? (editor.activeFocus ? Qt.darker(Color.mPrimary, 1.35) : Color.mPrimary) : Qt.rgba(0, 0, 0, 0.08)
 
@@ -291,6 +310,7 @@ Item {
       to: 28
       stepSize: 1
       value: _value
+      label: root.pluginApi?.tr("editor.font-size-label") ?? "Font size"
       text: root.pluginApi?.tr("editor.font-size", {
         "value": Math.round(_value)
       }) ?? `${Math.round(_value)} px`
@@ -298,6 +318,40 @@ Item {
       onPressedChanged: (pressed, v) => {
         if (!pressed)
           root.setFontSize(Math.round(v));
+      }
+    }
+
+    NValueSlider {
+      Layout.fillWidth: true
+      property real _value: root.store?.activeWidth ?? 200
+
+      from: Dimensions.WIDTH_MIN
+      to: Dimensions.WIDTH_MAX
+      stepSize: 10
+      value: _value
+      label: root.pluginApi?.tr("editor.width-label") ?? "Width"
+      text: `${Math.round(_value)} px`
+      onMoved: v => _value = v
+      onPressedChanged: (pressed, v) => {
+        if (!pressed)
+          root.setWidth(Math.round(v));
+      }
+    }
+
+    NValueSlider {
+      Layout.fillWidth: true
+      property real _value: root.store?.activeHeight ?? 140
+
+      from: Dimensions.HEIGHT_MIN
+      to: Dimensions.HEIGHT_MAX
+      stepSize: 10
+      value: _value
+      label: root.pluginApi?.tr("editor.height-label") ?? "Height"
+      text: `${Math.round(_value)} px`
+      onMoved: v => _value = v
+      onPressedChanged: (pressed, v) => {
+        if (!pressed)
+          root.setHeight(Math.round(v));
       }
     }
   }

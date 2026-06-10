@@ -19,7 +19,9 @@
     "defaultSettings": {
       "defaultBgColor": "#FFF9C4",
       "defaultTextColor": "#37474F",
-      "defaultFontSize": 14
+      "defaultFontSize": 14,
+      "defaultWidth": 200,
+      "defaultHeight": 140
     }
   }
 }

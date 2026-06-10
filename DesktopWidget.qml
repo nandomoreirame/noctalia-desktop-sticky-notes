@@ -1,9 +1,12 @@
 import QtQuick
+import QtQuick.Controls
 import qs.Commons
 import qs.Modules.DesktopWidgets
 import qs.Services.UI
 import qs.Widgets
 import "utils/markdown.js" as Markdown
+import "utils/scroll.js" as Scroll
+import "utils/dimensions.js" as Dimensions
 
 // One sticky note on the desktop. Per-instance state lives in widgetData
 // (text, bgColor, textColor, fontSize). Persistence goes through the base class
@@ -26,10 +29,13 @@ DraggableDesktopWidget {
   readonly property color noteTextColor: widgetData?.textColor ?? _defaults.defaultTextColor ?? "#37474F"
   readonly property int noteFontSize: widgetData?.fontSize ?? _defaults.defaultFontSize ?? 14
 
-  readonly property int baseW: 200
-  readonly property int baseH: 140
-  implicitWidth: Math.round(baseW * widgetScale)
-  implicitHeight: Math.round(baseH * widgetScale)
+  // Independent base width/height per note (REQ-009 spirit). The base class still
+  // multiplies by widgetScale (uniform corner-scale), so the corner handle zooms
+  // both while these sliders set the proportions. Clamped against corrupt data.
+  readonly property int noteWidth: Dimensions.clampDimension(widgetData?.noteWidth ?? _defaults.defaultWidth ?? 200, Dimensions.WIDTH_MIN, Dimensions.WIDTH_MAX)
+  readonly property int noteHeight: Dimensions.clampDimension(widgetData?.noteHeight ?? _defaults.defaultHeight ?? 140, Dimensions.HEIGHT_MIN, Dimensions.HEIGHT_MAX)
+  implicitWidth: Math.round(noteWidth * widgetScale)
+  implicitHeight: Math.round(noteHeight * widgetScale)
   width: implicitWidth
   height: implicitHeight
 
@@ -53,23 +59,42 @@ DraggableDesktopWidget {
       pointSize: Style.fontSizeM
     }
 
-    // Read-only Markdown preview. Text (not TextArea) so it never captures the
-    // mouse: clicks reach the MouseArea below (edit) and drags reach the base
-    // class drag/scale handles in edit mode (C-002).
-    Text {
+    // Read-only Markdown preview inside a wheel-scrollable Flickable (long notes).
+    // The Flickable is non-interactive so it never grabs drags: clicks reach the
+    // MouseArea below (edit) and drags reach the base drag/scale handles in edit
+    // mode (C-002). Scrolling is driven by the MouseArea's wheel handler.
+    Flickable {
+      id: noteFlick
       anchors.fill: parent
       anchors.margins: Math.round(Style.marginM * root.widgetScale)
       visible: root.noteText !== ""
-      text: Markdown.render(root.noteText, {
-        "noteColor": root.noteBg
-      })
-      textFormat: Text.RichText
-      color: root.noteTextColor
-      // Constant font size, independent of widgetScale (REQ-009). The note box
-      // grows with widgetScale (more room for text), the text stays readable.
-      font.pointSize: root.noteFontSize
-      wrapMode: Text.Wrap
-      verticalAlignment: Text.AlignTop
+      interactive: false
+      clip: true
+      contentWidth: width
+      contentHeight: notePreview.implicitHeight
+      boundsBehavior: Flickable.StopAtBounds
+
+      // Visual indicator only (drag is intercepted by the edit MouseArea above);
+      // shown whenever the content overflows. Scrolling is driven by the wheel.
+      ScrollBar.vertical: ScrollBar {
+        policy: noteFlick.contentHeight > noteFlick.height ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
+        width: Math.round(6 * root.widgetScale)
+      }
+
+      Text {
+        id: notePreview
+        width: noteFlick.width
+        text: Markdown.render(root.noteText, {
+          "noteColor": root.noteBg
+        })
+        textFormat: Text.RichText
+        color: root.noteTextColor
+        // Constant font size, independent of widgetScale (REQ-009). The note box
+        // grows with widgetScale (more room for text), the text stays readable.
+        font.pointSize: root.noteFontSize
+        wrapMode: Text.Wrap
+        verticalAlignment: Text.AlignTop
+      }
     }
   }
 
@@ -86,10 +111,15 @@ DraggableDesktopWidget {
           "text": root.widgetData?.text ?? "",
           "bgColor": root.widgetData?.bgColor ?? "#FFF9C4",
           "textColor": root.widgetData?.textColor ?? "#37474F",
-          "fontSize": root.widgetData?.fontSize ?? 14
+          "fontSize": root.widgetData?.fontSize ?? 14,
+          "noteWidth": root.noteWidth,
+          "noteHeight": root.noteHeight
         });
       }
       root.pluginApi?.openPanel(root.screen);
+    }
+    onWheel: wheel => {
+      noteFlick.contentY = Scroll.clampScroll(noteFlick.contentY - wheel.angleDelta.y, noteFlick.contentHeight, noteFlick.height);
     }
   }
 }

@@ -7,7 +7,10 @@
     "save-preview": "Salvar e visualizar",
     "save-close": "Salvar e fechar",
     "placeholder": "Escreva em Markdown...",
-    "font-size": "{value} px"
+    "font-size": "{value} px",
+    "font-size-label": "Tamanho da fonte",
+    "width-label": "Largura",
+    "height-label": "Altura"
   },
   "settings": {
     "background-label": "Cor de fundo",

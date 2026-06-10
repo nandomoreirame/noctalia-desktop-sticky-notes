@@ -17,6 +17,8 @@ Item {
   property string activeBgColor: "#FFF9C4"
   property string activeTextColor: "#37474F"
   property int activeFontSize: 14
+  property int activeWidth: 200
+  property int activeHeight: 140
 
   // Emitted on every setActive so an already-open Panel can reload.
   signal activeChanged
@@ -30,6 +32,8 @@ Item {
     activeBgColor = d.bgColor || "#FFF9C4";
     activeTextColor = d.textColor || "#37474F";
     activeFontSize = (d.fontSize !== undefined && d.fontSize !== null) ? d.fontSize : 14;
+    activeWidth = (d.noteWidth !== undefined && d.noteWidth !== null) ? d.noteWidth : 200;
+    activeHeight = (d.noteHeight !== undefined && d.noteHeight !== null) ? d.noteHeight : 140;
 
     activeChanged();
   }
