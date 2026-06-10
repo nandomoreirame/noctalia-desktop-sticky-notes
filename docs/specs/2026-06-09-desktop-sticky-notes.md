@@ -96,7 +96,7 @@ already validated in production, performs `escapeHtml`). Do not rewrite; only ad
 
 - **C-001:** `showBackground: false`; the note draws its own `Rectangle` with `bgColor` (post-it look).
 - **C-002:** the click-to-edit `MouseArea` is only `visible: !DesktopWidgetRegistry.editMode` (must not conflict with drag/scale).
-- **C-003:** all dimensions scaled with `Math.round(value * widgetScale)` (crisp text).
+- **C-003:** the note box and paddings scale with `widgetScale` (`Math.round(value * widgetScale)`), but the **font size does NOT** scale with `widgetScale` — it is the independent per-note `fontSize` knob (REQ-009). Scaling the widget reveals more/less text at a constant readable size instead of magnifying it.
 - **C-004:** disable expensive effects (shadow/layer) during `isScaling`/`isDragging`.
 - **C-005:** code, identifiers and commits in English; README/i18n default in English (registry).
 - **C-006:** Iron Law #4/#8: user input (note text) rendered as RichText MUST pass through `escapeHtml` (already in `markdown.js`); validate that malicious input does not break the render.
