@@ -5,9 +5,13 @@ desktop as **desktop widgets**. Each note is a draggable, scalable instance with
 a post-it background color, a text color and a font size. Clicking a note opens a focused popup
 editor.
 
-> **Status:** under development. The features below describe the planned MVP scope.
-> See [`docs/STATE.md`](docs/STATE.md) for progress, [`docs/specs/`](docs/specs/) for the spec and
-> [`docs/plans/`](docs/plans/) for the implementation plan. Not yet released.
+> **Status:** working MVP on Noctalia 4.7.7 (min `4.6.6`). Not yet published to the
+> [noctalia-plugins](https://github.com/noctalia-dev/noctalia-plugins) registry.
+> See [`docs/specs/`](docs/specs/) for the spec and [`docs/plans/`](docs/plans/) for the plan.
+
+## Screenshot
+
+![Desktop Sticky Notes pinned on the desktop](preview.png)
 
 ## Features
 
@@ -15,7 +19,8 @@ editor.
 - **Markdown.** Notes render Markdown (bold, italic, code, lists, task lists, quotes, tables, links) as read-only RichText on the desktop.
 - **Focused editor.** Clicking a note opens a popup panel with keyboard focus (a shell window), so you can actually type.
 - **Post-it palette.** Pick a background color from a post-it style palette.
-- **Customizable.** Per-note text color and font size, independent of the widget scale.
+- **Customizable.** Per-note text color, font size and independent width/height, all separate from the widget scale.
+- **Scrollable.** Long notes scroll with the mouse wheel and show a scrollbar.
 - **Persistent.** Notes survive shell restarts (state stored in Noctalia's desktop widget settings).
 - **i18n.** English and Portuguese.
 
@@ -55,12 +60,13 @@ In edit mode, right-click a note for the context menu (reset / raise / lower / d
 | Background color | Popup editor (post-it palette) | `#FFF9C4` |
 | Text color | Popup editor (`NColorPicker`) | `#37474F` |
 | Font size | Popup editor (slider) | `14` |
+| Width / height | Popup editor (sliders) | `200 x 140` |
 | Position / scale | Drag + corner handles (edit mode) | auto |
 
 ## Development
 
-The JS logic (`utils/markdown.js`, `utils/palette.js`) is covered by unit tests; the QML UI is
-verified by reloading the shell and watching the logs.
+The JS logic under `utils/` (`markdown.js`, `palette.js`, `scroll.js`, `dimensions.js`) is covered
+by Vitest unit tests; the QML UI is verified by reloading the shell and watching the logs.
 
 ```bash
 # JS unit tests (Vitest)
