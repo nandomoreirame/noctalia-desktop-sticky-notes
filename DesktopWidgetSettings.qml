@@ -1,8 +1,11 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import qs.Commons
+import qs.Services.System
 import qs.Widgets
 import "utils/palette.js" as Palette
+import "utils/filepath.js" as FilePath
 
 // Per-instance customization shown in the desktop widget context menu (edit mode):
 // background color, text color, font size and the optional base background.
@@ -17,6 +20,8 @@ ColumnLayout {
   property string bgColor: widgetSettings?.data?.bgColor ?? widgetSettings?.metadata?.defaultBgColor ?? "#FFF9C4"
   property string textColor: widgetSettings?.data?.textColor ?? widgetSettings?.metadata?.defaultTextColor ?? "#37474F"
   property int fontSize: widgetSettings?.data?.fontSize ?? widgetSettings?.metadata?.defaultFontSize ?? 14
+  // Optional .md file backing this note. Empty = inline text (REQ-010/AD-005).
+  property string filePath: widgetSettings?.data?.filePath ?? widgetSettings?.metadata?.defaultFilePath ?? ""
 
   function colorToHex(c) {
     function h(x) {
@@ -32,7 +37,65 @@ ColumnLayout {
     widgetSettings.data.bgColor = bgColor;
     widgetSettings.data.textColor = textColor;
     widgetSettings.data.fontSize = fontSize;
+    widgetSettings.data.filePath = filePath;
     widgetSettings.save();
+  }
+
+  // Markdown file source: link this note to a .md file on disk (REQ-010). Empty
+  // keeps the note's text inline (default). Text field accepts any path (~ allowed);
+  // the picker filters to markdown/text; the clear button unlinks (file is kept).
+  ColumnLayout {
+    Layout.fillWidth: true
+    spacing: Style.marginS
+
+    NLabel {
+      label: root.pluginApi?.tr("settings.file-source-label") ?? "Markdown file"
+      description: root.pluginApi?.tr("settings.file-source-description") ?? "Back this note with a .md file. Leave empty to store the text inline."
+    }
+
+    RowLayout {
+      Layout.fillWidth: true
+      spacing: Style.marginS
+
+      NTextInput {
+        Layout.fillWidth: true
+        text: root.filePath
+        placeholderText: "~/notes/todo.md"
+        onEditingFinished: {
+          root.filePath = text;
+          root.saveSettings();
+        }
+      }
+
+      NIconButton {
+        icon: "wallpaper-selector"
+        tooltipText: root.pluginApi?.tr("settings.file-source-pick") ?? "Choose a file"
+        onClicked: filePicker.openFilePicker()
+      }
+
+      NIconButton {
+        icon: "close"
+        enabled: FilePath.isLinked(root.filePath)
+        tooltipText: root.pluginApi?.tr("settings.file-source-clear") ?? "Unlink file"
+        onClicked: {
+          root.filePath = "";
+          root.saveSettings();
+        }
+      }
+    }
+
+    NFilePicker {
+      id: filePicker
+      selectionMode: "files"
+      nameFilters: ["*.md", "*.markdown", "*.txt"]
+      title: root.pluginApi?.tr("settings.file-source-label") ?? "Markdown file"
+      onAccepted: paths => {
+        if (paths.length > 0) {
+          root.filePath = paths[0];
+          root.saveSettings();
+        }
+      }
+    }
   }
 
   // Background color swatches.

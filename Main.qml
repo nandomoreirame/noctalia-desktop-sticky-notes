@@ -20,6 +20,8 @@ Item {
   property int activeWidth: 200
   property int activeHeight: 140
   property int activePadding: 12
+  // Optional .md file backing this note. Empty = inline text in widgetData.
+  property string activeFilePath: ""
 
   // Emitted on every setActive so an already-open Panel can reload.
   signal activeChanged
@@ -36,6 +38,7 @@ Item {
     activeWidth = (d.noteWidth !== undefined && d.noteWidth !== null) ? d.noteWidth : 200;
     activeHeight = (d.noteHeight !== undefined && d.noteHeight !== null) ? d.noteHeight : 140;
     activePadding = (d.padding !== undefined && d.padding !== null) ? d.padding : 12;
+    activeFilePath = d.filePath || "";
 
     activeChanged();
   }

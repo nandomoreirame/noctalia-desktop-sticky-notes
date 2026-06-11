@@ -22,7 +22,8 @@
       "defaultFontSize": 14,
       "defaultWidth": 200,
       "defaultHeight": 140,
-      "defaultPadding": 12
+      "defaultPadding": 12,
+      "defaultFilePath": ""
     }
   }
 }

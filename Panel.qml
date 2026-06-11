@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Quickshell.Io
 import qs.Commons
 import qs.Services.UI
 import qs.Widgets
@@ -8,6 +9,7 @@ import "utils/markdown.js" as Markdown
 import "utils/palette.js" as Palette
 import "utils/dimensions.js" as Dimensions
 import "utils/theme.js" as Theme
+import "utils/filepath.js" as FilePath
 
 // The note editor. Loaded by PluginPanelSlot inside a SmartPanel (a real shell
 // window), which is why it gets keyboard focus (AD-003). It reads the active note
@@ -34,6 +36,8 @@ Item {
 
   readonly property string noteColor: store?.activeBgColor ?? "#FFF9C4"
   readonly property string noteTextColor: store?.activeTextColor ?? "#37474F"
+  // The active note's optional .md backing file (REQ-012/AD-007). Empty = inline.
+  readonly property string activeFilePath: store?.activeFilePath ?? ""
   // Dark mode is derived from the background's luminance (the invert toggle is
   // stateless): when the note background is dark, show the dark swatch palette.
   readonly property bool darkMode: Palette.isDark(root.noteColor)
@@ -45,10 +49,26 @@ Item {
     DesktopWidgetRegistry.updateWidgetData(store.activeScreenName, store.activeWidgetIndex, props);
   }
 
+  // Writes the .md file when the note is linked (creating it on first save,
+  // REQ-012/AD-007); no watch + atomicWrites means this write never self-triggers
+  // a reload. The widget, watching the same path, re-renders. Unlinked notes keep
+  // saving inline into widgetData (C-009).
+  FileView {
+    id: noteWriter
+    watchChanges: false
+    atomicWrites: true
+    printErrors: false
+  }
+
   function saveText() {
-    persist({
-      "text": editor.text
-    });
+    if (FilePath.isLinked(root.activeFilePath)) {
+      noteWriter.path = root.activeFilePath;
+      noteWriter.setText(editor.text);
+    } else {
+      persist({
+        "text": editor.text
+      });
+    }
   }
 
   function closeEditor() {

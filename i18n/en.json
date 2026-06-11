@@ -20,6 +20,10 @@
     "text-color-label": "Text color",
     "text-color-description": "Color of the note text.",
     "font-size-label": "Font size",
-    "font-size-description": "Text size, independent of the widget scale."
+    "font-size-description": "Text size, independent of the widget scale.",
+    "file-source-label": "Markdown file",
+    "file-source-description": "Back this note with a .md file. Leave empty to store the text inline.",
+    "file-source-pick": "Choose a file",
+    "file-source-clear": "Unlink file"
   }
 }
