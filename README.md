@@ -20,6 +20,7 @@ editor.
 - **Focused editor.** Clicking a note opens a popup panel with keyboard focus (a shell window), so you can actually type.
 - **Post-it palette.** Pick a background color from a post-it style palette.
 - **Customizable.** Per-note text color, font size and independent width/height, all separate from the widget scale.
+- **File-backed notes.** Optionally link a note to a `.md` file on disk: the file becomes the note's source of truth (read and edited in place), with live updates when the file changes externally. Leave it empty to store the text inline.
 - **Scrollable.** Long notes scroll with the mouse wheel and show a scrollbar.
 - **Persistent.** Notes survive shell restarts (state stored in Noctalia's desktop widget settings).
 - **i18n.** English and Portuguese.
@@ -61,12 +62,21 @@ In edit mode, right-click a note for the context menu (reset / raise / lower / d
 | Text color | Popup editor (`NColorPicker`) | `#37474F` |
 | Font size | Popup editor (slider) | `14` |
 | Width / height | Popup editor (sliders) | `200 x 140` |
+| Markdown file | Widget settings (text field + file picker) | empty (inline text) |
 | Position / scale | Drag + corner handles (edit mode) | auto |
+
+### File-backed notes
+
+Open a note's **widget settings** (right-click in edit mode) and set a **Markdown file**
+path (`~` is expanded). From then on that note reads and writes that `.md` file instead of
+storing text inline: edits in the popup editor are saved to the file, and external edits
+to the file show up in the note live. The file is created on first save if it does not exist.
+Clearing the path unlinks the note (the file is kept) and restores its inline text.
 
 ## Development
 
-The JS logic under `utils/` (`markdown.js`, `palette.js`, `scroll.js`, `dimensions.js`) is covered
-by Vitest unit tests; the QML UI is verified by reloading the shell and watching the logs.
+The JS logic under `utils/` (`markdown.js`, `palette.js`, `scroll.js`, `dimensions.js`, `filepath.js`)
+is covered by Vitest unit tests; the QML UI is verified by reloading the shell and watching the logs.
 
 ```bash
 # JS unit tests (Vitest)
