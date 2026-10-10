@@ -3,11 +3,11 @@
   "name": "Desktop Sticky Notes",
   "version": "0.3.0",
   "minNoctaliaVersion": "4.6.6",
-  "author": "Fernando Moreira",
+  "author": "Fernando Moreira Costa",
   "license": "MIT",
   "repository": "https://github.com/nandomoreirame/noctalia-desktop-sticky-notes",
   "description": "Sticky notes you can pin on the desktop as desktop widgets, with Markdown, colors and per-note font size.",
-  "tags": ["Desktop", "Productivity", "Notes"],
+  "tags": ["Desktop", "Productivity"],
   "entryPoints": {
     "main": "Main.qml",
     "desktopWidget": "DesktopWidget.qml",
