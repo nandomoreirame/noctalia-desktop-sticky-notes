@@ -106,7 +106,7 @@ panel, barWidget, controlCenterWidget, launcherProvider, settings }`, `dependenc
 `sticky-notes/utils/markdown.js` is a self-contained `.pragma library` Markdown->Qt-RichText parser
 (AST -> renderer, does `escapeHtml`, supports bold/italic/code/lists/tasks/quotes/tables/links/images).
 **Vendor it verbatim** into `utils/markdown.js` (plan Task 5). It is the XSS guard for note text
-(Iron Law #4/#8). Local copy: `docs/reference/sticky-notes/utils/markdown.js`.
+(it escapes HTML before rendering). Local copy: `docs/reference/sticky-notes/utils/markdown.js`.
 
 ## Reference material (local, gitignored under `docs/reference/`)
 
@@ -145,7 +145,7 @@ ls /etc/xdg/quickshell/noctalia-shell/Modules/DesktopWidgets/
 - `docs/plans/2026-06-09-desktop-sticky-notes.md` — 14-task TDD plan.
 - `docs/STATE.md` — RPI state (`phase: plan-complete`).
 - `git init` done. Branch renamed to **`main`** (trunk-based, decided 2026-06-09). **Nothing committed yet.**
-- Remote `origin` set to `git@github.com:nandomoreirame/noctalia-desktop-sticky-notes.git` (private repo).
+- Remote `origin` set to `git@github.com:nandomoreirame/noctalia-desktop-sticky-notes.git`.
 - Symlink into `~/.config/noctalia/plugins/` **not created yet** (plan Task 2).
 - `.gitignore` already created.
 
@@ -157,7 +157,7 @@ ls /etc/xdg/quickshell/noctalia-shell/Modules/DesktopWidgets/
 
 ## Decisions confirmed (was "open items")
 
-- **Repo URL:** `https://github.com/nandomoreirame/noctalia-desktop-sticky-notes` (private). Use this in
+- **Repo URL:** `https://github.com/nandomoreirame/noctalia-desktop-sticky-notes`. Use this in
   `manifest.json` `repository` when scaffolded.
 - **Branch model:** trunk-based on `main` (no `develop`, no git-flow). Confirmed 2026-06-09.
 - Plugin `id`/name confirmed: `desktop-sticky-notes` / "Desktop Sticky Notes".

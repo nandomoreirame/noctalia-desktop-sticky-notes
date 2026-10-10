@@ -5,13 +5,15 @@ desktop as **desktop widgets**. Each note is a draggable, scalable instance with
 a post-it background color, a text color and a font size. Clicking a note opens a focused popup
 editor.
 
-> **Status:** working MVP on Noctalia 4.7.7 (min `4.6.6`). Not yet published to the
-> [noctalia-plugins](https://github.com/noctalia-dev/noctalia-plugins) registry.
-> See [`docs/specs/`](docs/specs/) for the spec and [`docs/plans/`](docs/plans/) for the plan.
+> [!IMPORTANT]
+> This is a **Noctalia Shell v4** plugin (QML, `manifest.json`), tested on
+> **noctalia-shell 4.7.7** (min `4.6.6`). It does **not** run on Noctalia v5, whose
+> plugin system is a different one (Luau scripts with a `plugin.toml` manifest). A v5
+> port is planned. See [Compatibility](#compatibility).
 
 ## Screenshot
 
-![Desktop Sticky Notes pinned on the desktop](preview.png)
+![A sticky note on the desktop with its widget settings open](screenshots/settings.png)
 
 ## Features
 
@@ -25,9 +27,23 @@ editor.
 - **Persistent.** Notes survive shell restarts (state stored in Noctalia's desktop widget settings).
 - **i18n.** English and Portuguese.
 
+## Compatibility
+
+| Noctalia | Status |
+|----------|--------|
+| v4 (`noctalia-shell` 4.6.6 to 4.7.x, run as `qs -c noctalia-shell`) | Supported, tested on 4.7.7 |
+| v5 (`noctalia` 5.x) | Not supported: v5 plugins are written in Luau, so this plugin would need a rewrite |
+
+**v5 is planned.** I intend to port the plugin to Noctalia v5 once I have it installed
+and tested on my CachyOS setup. Until then, v4 is the only supported target.
+
+On Arch/CachyOS the v4 shell is the `noctalia-shell` package and v5 is `noctalia`;
+both can be installed side by side. Check the installed v4 version with
+`pacman -Q noctalia-shell`.
+
 ## Requirements
 
-- Noctalia Shell `>= 4.6.6` (developed against 4.7.7).
+- Noctalia Shell v4 `>= 4.6.6` (see [Compatibility](#compatibility)).
 - Quickshell (bundled with Noctalia).
 
 ## Installation
@@ -35,7 +51,7 @@ editor.
 This plugin lives in its own repository and is symlinked into Noctalia's plugin directory.
 
 ```bash
-git clone git@github.com:nandomoreirame/noctalia-desktop-sticky-notes.git
+git clone https://github.com/nandomoreirame/noctalia-desktop-sticky-notes.git
 ln -sfn "$(pwd)/noctalia-desktop-sticky-notes" \
         ~/.config/noctalia/plugins/desktop-sticky-notes
 ```
@@ -93,4 +109,5 @@ and [`docs/CONTEXT.md`](docs/CONTEXT.md) for the full design handoff.
 
 ## License
 
-MIT (c) Fernando Moreira
+MIT (c) Fernando Moreira Costa. The Markdown renderer and the editor layout come from the
+MIT `sticky-notes` plugin by sapjax, see [THIRD_PARTY.md](THIRD_PARTY.md).
