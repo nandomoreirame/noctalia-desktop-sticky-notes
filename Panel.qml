@@ -14,6 +14,8 @@ import "utils/filepath.js" as FilePath
 // The note editor. Loaded by PluginPanelSlot inside a SmartPanel (a real shell
 // window), which is why it gets keyboard focus (AD-003). It reads the active note
 // from the Main.qml store and writes back by index via updateWidgetData (AD-002).
+// The edit/preview layout is adapted from ExpandedNoteWindow.qml of the MIT
+// "sticky-notes" plugin by sapjax (see THIRD_PARTY.md).
 Item {
   id: root
   property var pluginApi: null

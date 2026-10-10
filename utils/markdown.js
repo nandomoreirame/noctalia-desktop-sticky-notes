@@ -1,5 +1,9 @@
 .pragma library
 
+// Vendored verbatim from the "sticky-notes" Noctalia plugin by sapjax
+// (https://github.com/noctalia-dev/noctalia-plugins), MIT License.
+// See THIRD_PARTY.md for the notice.
+
 /**
  * Render Markdown text to Qt-compatible rich text (HTML subset).
  * Uses a lightweight two-phase AST parser -> Renderer architecture.
